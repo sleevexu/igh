@@ -1,13 +1,15 @@
+package task;
+
 import org.quartz.Job;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import service.CommSender;
 import util.SerialUtil;
 
 /**
  * Created by Jiajie on 2017/10/30.
  */
-public class HelloJob implements Job{
+public class GetDataTask implements Job {
 
     private SerialUtil serialUtil;
 
@@ -15,10 +17,10 @@ public class HelloJob implements Job{
 
     @Override
     public void execute(JobExecutionContext context)
-            throws JobExecutionException{
+            throws JobExecutionException {
         System.out.println("Hello Quartz");
         sender.getData();
-        System.out.println("Get Data");
+        System.out.println("Get Data Started!");
 
     }
 

@@ -108,34 +108,4 @@ public class SerialUtil {
             System.out.println("Too many listeners");
         }
     }
-
-//    private class CommListener implements SerialPortEventListener {
-//
-//        private InputStream inputStream;
-//
-//        @Override
-//        public void serialEvent(SerialPortEvent serialPortEvent) {
-//            switch (serialPortEvent.getEventType()) {
-//                case SerialPortEvent.BI: // 10通讯中断
-//                case SerialPortEvent.FE: // 9帧错误
-//                case SerialPortEvent.PE: // 8奇偶校验
-//                case SerialPortEvent.OE: // 7溢位错误
-//                case SerialPortEvent.CD: // 6载波检测
-//                case SerialPortEvent.RI: // 5振铃指示
-//                case SerialPortEvent.DSR: // 4数据设备准备好
-//                case SerialPortEvent.CTS: // 3清除发送
-//                case SerialPortEvent.OUTPUT_BUFFER_EMPTY: // 2输出缓冲区已清空
-//                    break;
-//                case SerialPortEvent.DATA_AVAILABLE: // 1 读到可用数据时激活
-//                {
-//                    System.out.println("SerialPortEvent.DATA_AVAILABLE occurred");
-//                    byte[] readBuffer = new byte[1024];
-//                    try {
-//                        Thread.sleep(20000);//硬件发送是分段的，加一个延时就行了
-//                        int numBytes = inputStream.read(readBuffer);
-//                        System.out.println(numBytes);
-//                    }catch (IOException | InterruptedException e){
-//                        System.out.println("IOException");}
-//                }
-//            }
 }

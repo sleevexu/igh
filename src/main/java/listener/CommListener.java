@@ -17,13 +17,16 @@ public class CommListener implements SerialPortEventListener {
 
     private InputStream inputStream;
 
+    private SerialPort port;
+
     public CommListener(SerialPort serialPort) {
         try {
-        this.inputStream = new BufferedInputStream(serialPort.getInputStream());// 获取输入流
+            this.port = serialPort;
+            this.inputStream = new BufferedInputStream(serialPort.getInputStream());// 获取输入流
         } catch (IOException e) {
-        System.out.println("IOException");
+            System.out.println("IOException");
         }
-        }
+    }
 
     @Override
     public void serialEvent(SerialPortEvent serialPortEvent) {
@@ -41,27 +44,24 @@ public class CommListener implements SerialPortEventListener {
             case SerialPortEvent.DATA_AVAILABLE: // 1 读到可用数据时激活
             {
                 System.out.println("SerialPortEvent.DATA_AVAILABLE occurred");
-                byte[] readBuffer = new byte[10];
+                byte[] readBuffer = new byte[16];
                 try {
                     System.out.println("READ");
-                    int i = 0;
-                    while (inputStream.available()>0 && readBuffer[i] != -1){
-
-//                    while ((i=inputStream.read(readBuffer))!=-1){
-//                        String str = ByteUtil.bytesToHexString(readBuffer);
-//                        System.out.println(str);
+//                    int i = 0;
+//                    while (inputStream.available() > 0 && readBuffer[i] != -1) {
+//                        readBuffer[i] = (byte) inputStream.read();
+//                        i++;
+//                        System.out.println("Number:" + i);
+//                        System.out.println(ByteUtil.bytesToHexString(readBuffer));
+//                        Thread.sleep(100);
 //                    }
-//                    int numBytes = inputStream.read(readBuffer);
-                        readBuffer[i] = (byte)inputStream.read();
-                        i++;
-                        System.out.println("Number:"+i);
-                        System.out.println(ByteUtil.bytesToHexString(readBuffer));
-                        Thread.sleep(100);
-                    }
+                    SerialUtil.readFromPort(port);
+                    Thread.sleep(2000);
 
-            }catch (IOException e1){
-                System.out.println("IOException");} catch (InterruptedException e) {
-                System.out.println("Interrupted");
+//                } catch (IOException e1) {
+//                    System.out.println("IOException");
+                } catch (InterruptedException e) {
+                    System.out.println("Interrupted");
                     e.printStackTrace();
                 }
             }
