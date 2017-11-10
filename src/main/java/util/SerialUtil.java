@@ -65,7 +65,7 @@ public class SerialUtil {
         System.out.println("Close " + portName + " sucessfully !");
     }
 
-    public void sendToPort(SerialPort serialPort, byte[] order) {
+    public static void sendToPort(SerialPort serialPort, byte[] order) {
         try {
             OutputStream out = serialPort.getOutputStream();
             out.write(order);
@@ -76,8 +76,9 @@ public class SerialUtil {
         }
     }
 
-    public static byte[] readFromPort(SerialPort serialPort) {
-        byte[] bytes = new byte[10];
+    public byte[] readFromPort(SerialPort serialPort) {
+        synchronized (this){
+        byte[] bytes = new byte[16];
         InputStream readBuffer = null;
         try {
             readBuffer = serialPort.getInputStream();
@@ -95,7 +96,7 @@ public class SerialUtil {
         }
         String HexBytes = ByteUtil.bytesToHexString(bytes);
         System.out.println(HexBytes);
-        return bytes;
+        return bytes;}
     }
 
     public static void addListener(SerialPort port, SerialPortEventListener listener) throws

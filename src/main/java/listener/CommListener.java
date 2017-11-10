@@ -3,28 +3,34 @@ package listener;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
+import service.ParseDataService;
 import util.ByteUtil;
 import util.SerialUtil;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * Created by Jiajie on 2017/10/30.
  */
 public class CommListener implements SerialPortEventListener {
+    private SerialUtil serialUtil;
 
     private InputStream inputStream;
 
     private SerialPort port;
 
-    public CommListener(SerialPort serialPort) {
+    private ArrayList<Byte> address;
+
+    public CommListener(SerialPort port, ArrayList<Byte> address) {
+        this.port = port;
+        this.address = address;
         try {
-            this.port = serialPort;
-            this.inputStream = new BufferedInputStream(serialPort.getInputStream());// 获取输入流
+            this.inputStream = new BufferedInputStream(port.getInputStream());
         } catch (IOException e) {
-            System.out.println("IOException");
+            System.out.println("IOException!");
         }
     }
 
@@ -44,25 +50,26 @@ public class CommListener implements SerialPortEventListener {
             case SerialPortEvent.DATA_AVAILABLE: // 1 读到可用数据时激活
             {
                 System.out.println("SerialPortEvent.DATA_AVAILABLE occurred");
-                byte[] readBuffer = new byte[16];
                 try {
-                    System.out.println("READ");
-//                    int i = 0;
-//                    while (inputStream.available() > 0 && readBuffer[i] != -1) {
-//                        readBuffer[i] = (byte) inputStream.read();
-//                        i++;
-//                        System.out.println("Number:" + i);
-//                        System.out.println(ByteUtil.bytesToHexString(readBuffer));
-//                        Thread.sleep(100);
-//                    }
-                    SerialUtil.readFromPort(port);
-                    Thread.sleep(2000);
-
-//                } catch (IOException e1) {
-//                    System.out.println("IOException");
-                } catch (InterruptedException e) {
-                    System.out.println("Interrupted");
-                    e.printStackTrace();
+                    byte[] data = new byte[16];
+                    try {
+                        int i = 0;
+                        while (inputStream.available() > 0 && data[i] != -1) {
+                            data[i] = (byte) inputStream.read();
+                            i++;
+                            if (inputStream.available() == 0) {
+                                System.out.println("Number:" + i);
+                                System.out.println(ByteUtil.bytesToHexString(data));
+                                ParseDataService.parseData(address, data);
+                                break;
+                            }
+                        }
+                    } catch (IOException e) {
+                        System.out.println("IOException");
+                        e.printStackTrace();
+                    }
+                } catch (UnsupportedOperationException e) {
+                    System.out.println("Cant do this");
                 }
             }
         }

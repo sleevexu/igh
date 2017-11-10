@@ -1,44 +1,54 @@
 import gnu.io.SerialPort;
 import listener.CommListener;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import service.CommSender;
-import task.GetDataTask;
+import service.RefreshNodeService;
+import thread.GetDataThread;
+import thread.RefreshNodeThread;
 import util.SerialUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TooManyListenersException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Jiajie on 2017/10/30.
  */
 public class mainCL {
 
-    public static void main(String[] args) throws TooManyListenersException, SchedulerException {
-
-        List<String> portList = SerialUtil.findPort();
-        if (portList.size() < 1) {
-            System.out.println("no device");
-        } else {
-            System.out.println(portList);
-            SerialUtil serialUtil = new SerialUtil();
-            serialUtil.setPortName(portList.get(0));
-            SerialPort port = serialUtil.openPort(serialUtil.getPortName(), 115200);
-            System.out.println("Port is open");
-//            CommListener listener = new CommListener(port);
-//            SerialUtil.addListener(port, listener);
+    public static void main(String[] args) throws TooManyListenersException {
+        SerialPort port = init();
+        if (port != null) {
+            ArrayList<Byte> address = new ArrayList<>();
+            System.out.println("Address length: "+address.size());
+            CommListener listener = new CommListener(port,address);
+            SerialUtil.addListener(port, listener);
             CommSender sender = new CommSender(port);
-
-            JobDetail job = JobBuilder.newJob(GetDataTask.class).withIdentity("job1", "group1").build();
-
-            Trigger trigger = TriggerBuilder.newTrigger().withIdentity("trigger1", "group1")
-                    .withSchedule(CronScheduleBuilder.cronSchedule("0/5 * * * * ? * ")).build();
-
-            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
-            scheduler.start();
-            scheduler.scheduleJob(job, trigger);
+            byte[] data = {(byte)0x01,(byte)0x02};
+            SerialUtil.sendToPort(port,data);
+//            address.add((byte) 0x01);
+//            address.add((byte) 0x02);
+            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+            service.scheduleAtFixedRate(new GetDataThread(address, sender), 10, 5, TimeUnit.SECONDS);
+            service.scheduleAtFixedRate(new RefreshNodeThread(sender), 5, 10, TimeUnit.SECONDS);
+        } else {
+            System.out.println("There is no device connected!");
         }
     }
 
+    private static SerialPort init() {
+        List<String> portList = SerialUtil.findPort();
+        if (portList.size() < 1) {
+            System.out.println("There is no device connected!");
+            return null;
+        } else {
+            System.out.println("Port list is " + portList);
+            SerialUtil serialUtil = new SerialUtil();
+            serialUtil.setPortName(portList.get(0));
+            SerialPort port = SerialUtil.openPort(serialUtil.getPortName(), 115200);
+            return port;
+        }
+    }
 }
-
