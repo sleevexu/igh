@@ -10,9 +10,10 @@ public class RefreshNodeService {
             System.out.println("Add Node Address:"+newAddress);
         }
         for (int i =0;i<nodeAddress.size();i++){
-            if (!nodeAddress.get(i).equals(newAddress)){
+            if (!nodeAddress.contains(newAddress)){
                 System.out.println("Add Node Address: "+newAddress);
                 nodeAddress.add(newAddress);
+                break;
             }
         }
     }

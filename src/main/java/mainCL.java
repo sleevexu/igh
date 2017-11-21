@@ -4,6 +4,7 @@ import service.CommSender;
 import service.RefreshNodeService;
 import thread.GetDataThread;
 import thread.RefreshNodeThread;
+import thread.SyncThread;
 import util.SerialUtil;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.TooManyListenersException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,13 +28,11 @@ public class mainCL {
             CommListener listener = new CommListener(port,address);
             SerialUtil.addListener(port, listener);
             CommSender sender = new CommSender(port);
-            byte[] data = {(byte)0x01,(byte)0x02};
-            SerialUtil.sendToPort(port,data);
-//            address.add((byte) 0x01);
-//            address.add((byte) 0x02);
             ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-            service.scheduleAtFixedRate(new GetDataThread(address, sender), 10, 5, TimeUnit.SECONDS);
-            service.scheduleAtFixedRate(new RefreshNodeThread(sender), 5, 10, TimeUnit.SECONDS);
+            service.scheduleAtFixedRate(new GetDataThread(address, sender), 15, 120, TimeUnit.SECONDS);
+            service.scheduleAtFixedRate(new RefreshNodeThread(sender), 5, 600, TimeUnit.SECONDS);
+            ScheduledThreadPoolExecutor syncExecutor = new ScheduledThreadPoolExecutor(1);
+            syncExecutor.scheduleAtFixedRate(new SyncThread(),100,360,TimeUnit.SECONDS);
         } else {
             System.out.println("There is no device connected!");
         }
@@ -47,7 +47,7 @@ public class mainCL {
             System.out.println("Port list is " + portList);
             SerialUtil serialUtil = new SerialUtil();
             serialUtil.setPortName(portList.get(0));
-            SerialPort port = SerialUtil.openPort(serialUtil.getPortName(), 115200);
+            SerialPort port = SerialUtil.openPort(serialUtil.getPortName(), 2400);
             return port;
         }
     }

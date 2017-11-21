@@ -14,7 +14,7 @@ public class CommSender {
     private static SerialUtil serialUtil = new SerialUtil();
     private static SerialPort port;
     private static byte[] GET_DATA_ORDER = new byte[2];
-    private static byte[] REFRESH_NODE_ORDER = {(byte) 0xff};
+    private static byte[] REFRESH_NODE_ORDER = {(byte)0x00,(byte) 0xff};
 
     public CommSender(SerialPort port) {
         this.port = port;
@@ -22,8 +22,11 @@ public class CommSender {
 
     public static void getData(ArrayList<Byte> address) {
         for (int i = 0; i < address.size(); i++) {
-            GET_DATA_ORDER[0] = CONSTANT.GET_DATA_CMD;
-            GET_DATA_ORDER[1] = address.get(i);
+            try {
+                Thread.sleep(5000);
+            }catch (InterruptedException e){e.printStackTrace();}
+            GET_DATA_ORDER[1] = CONSTANT.GET_DATA_CMD;
+            GET_DATA_ORDER[0] = address.get(i);
             serialUtil.sendToPort(port, GET_DATA_ORDER);
             System.out.println("Send Data Command " + ByteUtil.bytesToHexString(GET_DATA_ORDER));
             try {

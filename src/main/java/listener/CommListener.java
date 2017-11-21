@@ -1,5 +1,6 @@
 package listener;
 
+import com.sun.activation.registries.MailcapParseException;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
@@ -10,7 +11,10 @@ import util.SerialUtil;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Jiajie on 2017/10/30.
@@ -51,16 +55,22 @@ public class CommListener implements SerialPortEventListener {
             {
                 System.out.println("SerialPortEvent.DATA_AVAILABLE occurred");
                 try {
-                    byte[] data = new byte[16];
+                    byte[] data = new byte[19];
                     try {
                         int i = 0;
                         while (inputStream.available() > 0 && data[i] != -1) {
+                            try {
+                                Thread.sleep(10);
+                            }catch (InterruptedException e){e.printStackTrace();}
                             data[i] = (byte) inputStream.read();
                             i++;
                             if (inputStream.available() == 0) {
-                                System.out.println("Number:" + i);
+                                Timestamp sampleTime = new Timestamp(System.currentTimeMillis());
+                                Map<String, Object> dataPackage = new HashMap<>();
+                                dataPackage.put("sampleTime", sampleTime);
+                                dataPackage.put("data", data);
                                 System.out.println(ByteUtil.bytesToHexString(data));
-                                ParseDataService.parseData(address, data);
+                                ParseDataService.parseData(address, dataPackage);
                                 break;
                             }
                         }
