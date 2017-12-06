@@ -22,7 +22,7 @@ public class ParseDataService {
                 System.out.println("Invalid Node Address!");
                 return;
             }
-            System.out.println("Parse Data start:"+(nodeAddress&0xff));
+            System.out.println("Parse Data start:" + (nodeAddress & 0xff));
             int deviceId = address2deviceId(nodeAddress & 0xff);
             System.out.println("device ID is:" + deviceId);
             HashMap<String, Object> dataMap = new HashMap<>();
@@ -32,8 +32,15 @@ public class ParseDataService {
             System.out.println("Parse Data of Ask Data");
             if (data.length < 19) return;
             if ((data[16] & 0x01) == 0) {
-                float soilTemp = (float) (((data[3] << 8) | data[4] & 0xff) / 10.0);
-                System.out.println("soil Temperature:" + soilTemp);
+                float soilTemp = 0.0f;
+                if ((data[3] & 0x80) == 128) {
+                    data[3] = (byte) (data[3] & 0b01111111);
+                    soilTemp = (float) (((data[3] << 8) | data[4] & 0xff) / 10.0);
+                    System.out.println("soil Temperature:" + soilTemp);
+                } else {
+                    soilTemp = (float) (((data[3] << 8) | data[4] & 0xff) / 10.0);
+                    System.out.println("soil Temperature:" + soilTemp);
+                }
                 dataMap.put("value", soilTemp);
                 DataBaseHelper.insertEntity("t_soiltemp", dataMap);
             } else System.out.println("Soil Temp is offline.");
@@ -44,8 +51,15 @@ public class ParseDataService {
                 DataBaseHelper.insertEntity("t_soilhumidity", dataMap);
             } else System.out.println("Soil Humidity is offline");
             if ((data[16] & 0x04) >> 2 == 0) {
-                float airTemp = (float) (((data[7] << 8) | data[8] & 0xff) / 10.0);
-                System.out.println("air Temperature:" + airTemp);
+                float airTemp = 0.0f;
+                if ((data[7] & 0x80) == 128) {
+                    data[7] = (byte) (data[7] & 0b01111111);
+                    airTemp = (float) (((data[7] << 8) | data[8] & 0xff) / 10.0);
+                    System.out.println("air Temperature:" + airTemp);
+                } else {
+                    airTemp = (float) (((data[7] << 8) | data[8] & 0xff) / 10.0);
+                    System.out.println("air Temperature:" + airTemp);
+                }
                 dataMap.put("value", airTemp);
                 DataBaseHelper.insertEntity("t_airtemp", dataMap);
                 float airHumidity = (float) (((data[9] << 8) | data[10] & 0xff) / 10.0);
@@ -54,7 +68,7 @@ public class ParseDataService {
                 DataBaseHelper.insertEntity("t_airhumidity", dataMap);
             } else System.out.println("air Sensor is offline");
             if ((data[16] & 0x02) >> 1 == 0) {
-                float light = data[11] << 8 | data[12] & 0xff;
+                float light = (data[11] << 8) & 0xff00 | data[12] & 0xff;
                 System.out.println("light:" + light);
                 dataMap.put("value", light);
                 DataBaseHelper.insertEntity("t_light", dataMap);

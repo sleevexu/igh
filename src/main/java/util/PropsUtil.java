@@ -23,7 +23,6 @@ public class PropsUtil {
         InputStream inputStream = null;
         try {
             String filepath = PropsUtil.class.getProtectionDomain().getCodeSource().getLocation().getFile();
-            System.out.println(filepath);
             filepath = filepath.substring(0, filepath.lastIndexOf("/") + 1);
             filepath = filepath.replace("%20"," ");
             File propfile = new File(filepath + filename);

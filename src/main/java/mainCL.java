@@ -1,8 +1,10 @@
+import common.Configuration;
 import gnu.io.SerialPort;
 import listener.CommListener;
 import service.CommSender;
 import service.RefreshNodeService;
 import thread.GetDataThread;
+import thread.GetWeatherThread;
 import thread.RefreshNodeThread;
 import thread.SyncThread;
 import util.SerialUtil;
@@ -24,15 +26,16 @@ public class mainCL {
         SerialPort port = init();
         if (port != null) {
             ArrayList<Byte> address = new ArrayList<>();
-            System.out.println("Address length: "+address.size());
-            CommListener listener = new CommListener(port,address);
+            System.out.println("Address length: " + address.size());
+            CommListener listener = new CommListener(port, address);
             SerialUtil.addListener(port, listener);
             CommSender sender = new CommSender(port);
             ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-            service.scheduleAtFixedRate(new GetDataThread(address, sender), 15, 120, TimeUnit.SECONDS);
-            service.scheduleAtFixedRate(new RefreshNodeThread(sender), 5, 600, TimeUnit.SECONDS);
-            ScheduledThreadPoolExecutor syncExecutor = new ScheduledThreadPoolExecutor(1);
-            syncExecutor.scheduleAtFixedRate(new SyncThread(),100,360,TimeUnit.SECONDS);
+            service.scheduleAtFixedRate(new GetDataThread(address, sender), Configuration.IndoorAcqDelay ,Configuration.IndoorAcqCycle, TimeUnit.SECONDS);
+            service.scheduleAtFixedRate(new RefreshNodeThread(sender), Configuration.NodeAddressAcqDelay, Configuration.NodeAddressAcqCycle, TimeUnit.SECONDS);
+            service.scheduleAtFixedRate(new GetWeatherThread(), Configuration.WeatherReportAcqDelay, Configuration.WeatherReportAcqCycle, TimeUnit.SECONDS);
+            ScheduledThreadPoolExecutor taskExecutor = new ScheduledThreadPoolExecutor(1);
+            taskExecutor.scheduleAtFixedRate(new SyncThread(), Configuration.UploadDelay, Configuration.UploadCycle, TimeUnit.SECONDS);
         } else {
             System.out.println("There is no device connected!");
         }
