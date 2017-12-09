@@ -100,11 +100,11 @@ public class GetWeatherThread implements Runnable {
             System.out.println("Save weather."+ new Timestamp(System.currentTimeMillis()));
         }
 
-        String sql = "SELECT * FROM t_light WHERE deviceid=10200013 ORDER BY id DESC LIMIT 1";
-        Data solar = DataBaseHelper.queryEntity(Data.class, sql);
-        dataMap.put("sampletime", solar.getSampletime());
-        dataMap.put("value", solar.getValue());
-        DataBaseHelper.insertEntity("t_solar", dataMap);
+//        String sql = "SELECT * FROM t_light WHERE deviceid=10200013 ORDER BY id DESC LIMIT 1";
+//        Data solar = DataBaseHelper.queryEntity(Data.class, sql);
+//        dataMap.put("sampletime", solar.getSampletime());
+//        dataMap.put("value", solar.getValue());
+//        DataBaseHelper.insertEntity("t_solar", dataMap);
         logger.info("Get Weather Resp...");
     }
 

@@ -31,11 +31,11 @@ public class mainCL {
             SerialUtil.addListener(port, listener);
             CommSender sender = new CommSender(port);
             ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-            service.scheduleAtFixedRate(new GetDataThread(address, sender), Configuration.IndoorAcqDelay ,Configuration.IndoorAcqCycle, TimeUnit.SECONDS);
+            service.scheduleAtFixedRate(new GetDataThread(address, sender), Configuration.IndoorAcqDelay, Configuration.IndoorAcqCycle, TimeUnit.SECONDS);
             service.scheduleAtFixedRate(new RefreshNodeThread(sender), Configuration.NodeAddressAcqDelay, Configuration.NodeAddressAcqCycle, TimeUnit.SECONDS);
-            service.scheduleAtFixedRate(new GetWeatherThread(), Configuration.WeatherReportAcqDelay, Configuration.WeatherReportAcqCycle, TimeUnit.SECONDS);
-            ScheduledThreadPoolExecutor taskExecutor = new ScheduledThreadPoolExecutor(1);
+            ScheduledThreadPoolExecutor taskExecutor = new ScheduledThreadPoolExecutor(2);
             taskExecutor.scheduleAtFixedRate(new SyncThread(), Configuration.UploadDelay, Configuration.UploadCycle, TimeUnit.SECONDS);
+            taskExecutor.scheduleAtFixedRate(new GetWeatherThread(), Configuration.WeatherReportAcqDelay, Configuration.WeatherReportAcqCycle, TimeUnit.SECONDS);
         } else {
             System.out.println("There is no device connected!");
         }
