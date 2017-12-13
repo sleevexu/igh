@@ -60,7 +60,7 @@ public class CommListener implements SerialPortEventListener {
                         int i = 0;
                         while (inputStream.available() > 0 && data[i] != -1) {
                             try {
-                                Thread.sleep(10);
+                                Thread.sleep(15);
                             }catch (InterruptedException e){e.printStackTrace();}
                             data[i] = (byte) inputStream.read();
                             i++;

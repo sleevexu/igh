@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import helper.DataBaseHelper;
 import http.HttpSender;
-import model.Data;
 import model.Weather;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
